@@ -69,7 +69,13 @@ class SleepTrackerFragment : Fragment() {
 
         sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.data = it
+                /**
+                 * before using [SleepNightCallback] we were using following code to
+                 * manage list
+                 */
+//                adapter.data = it
+
+                adapter.submitList(it)
             }
         })
         // Add an Observer on the state variable for showing a Snackbar message
