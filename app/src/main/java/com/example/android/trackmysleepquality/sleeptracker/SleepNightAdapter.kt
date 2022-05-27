@@ -16,14 +16,12 @@
 
 package com.example.android.trackmysleepquality.sleeptracker
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.android.trackmysleepquality.R
-import com.example.android.trackmysleepquality.convertDurationToFormatted
-import com.example.android.trackmysleepquality.convertNumericQualityToString
 import com.example.android.trackmysleepquality.database.SleepNight
 import com.example.android.trackmysleepquality.databinding.ListItemSleepNightBinding
 
@@ -33,7 +31,7 @@ import com.example.android.trackmysleepquality.databinding.ListItemSleepNightBin
  * backed by a list that can be used by diff util to check whether a there is a change or not
  * Now list will be tracked and Recycler View will be notified when there will be change
  */
-class SleepNightAdapter : ListAdapter<SleepNight,SleepNightAdapter.ViewHolder>(SleepNightCallback()){
+class SleepNightAdapter(val clickListener: SleepNightListener) : ListAdapter<SleepNight,SleepNightAdapter.ViewHolder>(SleepNightCallback()){
     /**
      * We can implement Recycler View like below using [notifyDataSetChanged] but when there is a change
      * all the list is updated and views are redrawn that gives poor performance
@@ -65,8 +63,9 @@ class SleepNightAdapter : ListAdapter<SleepNight,SleepNightAdapter.ViewHolder>(S
          */
 //        val item: SleepNight = data[position]
 
+        Log.i("Position","position + $position")
         val item =  getItem(position)
-        holder.bind(item)
+        holder.bind(item,clickListener)
     }
 
 
@@ -80,9 +79,11 @@ class SleepNightAdapter : ListAdapter<SleepNight,SleepNightAdapter.ViewHolder>(S
 
     class ViewHolder private constructor(val binding: ListItemSleepNightBinding):RecyclerView.ViewHolder(binding.root) {
         fun bind(
-            item: SleepNight
+            item: SleepNight,
+            clickListener: SleepNightListener
         ) {
             binding.sleep = item
+            binding.clickListener = clickListener
             binding.executePendingBindings()
         }
 
@@ -117,4 +118,8 @@ class SleepNightCallback:DiffUtil.ItemCallback<SleepNight>(){
     override fun areContentsTheSame(oldItem: SleepNight, newItem: SleepNight): Boolean {
     return oldItem == newItem
     }
+}
+
+class SleepNightListener(val clickListener: (sleepId: Long) -> Unit) {
+    fun onClick(night: SleepNight) = clickListener(night.nightId)
 }
